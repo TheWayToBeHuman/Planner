@@ -7,7 +7,10 @@ using namespace std;
 
 struct Node{
     int ID;
-     string title;
+    string title;
+    string course;
+    string dueDate;
+    bool completed;
     Node* next;
     
 
@@ -33,16 +36,15 @@ void displayTitle(Node* head){
   
 }
 
-void InsertFront(Node*& head, int ID, string title){
-    Node* newNode = new Node{ID, title, nullptr};
+void InsertFront(Node*& head, int ID, string title, string course, string dueDate){
+    Node* newNode = new Node{ID, title, course, dueDate, false, nulltr};
+
     newNode->next = head;
     head = newNode;
-    return;
-
 }
 
-void InsertEnd(Node*& head, int ID, string title){
-    Node* newNode = new Node{ID, title, nullptr};
+void InsertEnd(Node*& head, int ID, string title, string course, string dueDate){
+    Node* newNode = new Node{ID, title, course, dueDate, false, nulltr};
     if (head == nullptr){
         head = newNode;
         return;
@@ -54,62 +56,134 @@ void InsertEnd(Node*& head, int ID, string title){
     curr->next = newNode;
 
 }
-void Insert(Node*head, int ID, string title){
-    Node* newNode = new Node{ID, title, nullptr};
-    if (head == nullptr){
-        head = newNode;
-        return;
-    }
+void Insert(Node*& head, int ID, string title, string course, string dueDate) {
 
     Node* curr = head;
-    while(curr->next != nullptr){
-        if(curr->ID == ID && curr->title == title){
-            newNode->next = curr->next;
-            curr->next = newNode;
+
+    while (curr != nullptr) {
+        if (curr->ID == ID) {
+            cout << "Assignment ID already exists." << endl;
             return;
         }
+
+        curr = curr->next;
     }
+
+    InsertEnd(head, ID, title, course, dueDate);
+}
     
     
     
         
     }
 
-
-
-
-bool contains(Node* head, int targetID, string targetStr){
+void displayAssignments(Node* head) {
     Node* curr = head;
-    
-    
-    while (curr != nullptr){
-        if(curr->ID == targetID && curr->title == targetStr){
-            return true;
-            cout << targetStr << " is here.";
+
+    while (curr != nullptr) {
+        cout << "ID: "<< curr ->ID << endl;
+        cout << "Title: "<< curr ->title << endl;
+        cout << "Course: "<< curr ->course << endl;
+        cout << "Due Date: "<< curr ->dueDate << endl;
+
+        if (curr->completed) {
+            cour << "Status: Completed" << endl;
         }
+        else    {
+                cout << "Status: Incomplete" << endl;
+        }
+
+        cout << "-------------------" << endl;
+
+        curr = curr->next;
+    }
+}
+
+bool contains(Node* head, int targetID) {
+
+    Node* curr = head;
+
+    while (curr != nullptr) {
+
+        if (curr->ID == targetID) {
+            return true;
+        }
+
         curr = curr->next;
     }
 
     return false;
 }
 
+bool containsTitle(Node* head, string targetTitle) {
 
+    Node* curr = head;
 
-int main(){
-    
-int one_piece;
-InsertFront(head, 140, "Math");
-    displayID(head);
-    cout << endl;
-    displayTitle(head);
-int fax;
-   fax = contains(head, 140, "Math") ;
+    while (curr != nullptr) {
 
-   cout << endl << fax;
+        if (curr->title == TargetTitle) {
+            return true;
+        }
 
-Insert(head, 325, "CSCI");
+        curr = curr->next;
+    }
+return false;
+}
 
-displayID(head);
+void Delete(Node*& head, int targetID) {
 
-    return 0;
+    if (head == nullptr) {
+        cout << "Assignment list is empty." << endl;
+        return;
+    }
+
+    if (head->ID == targetID) {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+        cout << "Assignment deleted." << endl;
+        return;
+    }
+
+    Node* curr = head;
+
+    while (curr->next != nullptr) {
+
+        if (curr->next->ID == targetID) {
+            Node* temp = curr->next;
+            curr->next = temp->next;
+            delete temp;
+
+            cout << "Assignment deleted." << endl;
+            return;
+        }
+
+        curr = curr->next;
+    }
+
+    cout << "Assignment not found." << endl;
+}
+
+void MarkCompleted(Node* head, int targetID) {
+        Node* curr = head;
+
+        while (curr != nullptr) {
+
+            if (curr->ID == targetID) {
+                curr->completed = true;
+                cout << "Assignment marked as completed." << endl;
+                return;
+            }
+    curr = curr->next;
+        }
+    cout << "Assignment not found." << endl;
+}
+
+int main() {
+           Node* head = nullptr;
+            InsertFront(head, 140, "Final Project", "CSCI 325", "12-01-2026");
+            InsertEnd(head,141, "Research Paper", "ENGL 112" , "11-25-2026);
+            InsertEnd(head, 142, "Security Report", "CYBR 322" , "11-30-2026);
+            displayAssignments(head);
+            return 0;
 }
