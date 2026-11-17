@@ -179,11 +179,52 @@ void MarkCompleted(Node* head, int targetID) {
     cout << "Assignment not found." << endl;
 }
 
+struct TreeNode {
+    Node* assignment;
+    TreeNode* left;
+    TreeNode* right;
+
+    TreeNode(Node* a)
+        : assignment(a), left(nullptr), right(nullptr) {}
+};
+
+TreeNode* insertBST(TreeNode* root, Node* assignment) {
+    if (root == nullptr)
+        return new TreeNode(assignment);
+
+    if (assignment->dueDate < root->assignment->dueDate)
+        root->left = insertBST(root->left, assignment);
+    else
+        root->right = insertBST(root->right, assignment);
+
+    return root;
+}
+
+void displayByDueDate(TreeNode* root) {
+    if (root == nullptr)
+        return;
+
+    displayByDueDate(root->left);
+
+    cout << root->assignment->dueDate << " - "
+         << root->assignment->title << endl;
+
+    displayByDueDate(root->right);
+}
+
 int main() {
-           Node* head = nullptr;
-            InsertFront(head, 140, "Final Project", "CSCI 325", "12-01-2026");
-            InsertEnd(head,141, "Research Paper", "ENGL 112" , "11-25-2026");
-            InsertEnd(head, 142, "Security Report", "CYBR 322" , "11-30-2026");
-            displayAssignments(head);
-            return 0;
+    Node* head = nullptr;
+    TreeNode* dueDateTree = nullptr;
+
+    InsertEnd(head, 140, "Final Project", "CSCI 325", "2026-12-01");
+    InsertEnd(head, 141, "Research Paper", "ENGL 112", "2026-11-25");
+    InsertEnd(head, 142, "Security Report", "CYBR 322", "2026-11-30");
+
+    Node* current = head;
+    while (current != nullptr) {
+        dueDateTree = insertBST(dueDateTree, current);
+        current = current->next;
+    }
+
+    displayByDueDate(dueDateTree);
 }
