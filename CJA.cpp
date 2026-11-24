@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <limits>
 #include <string>
 using namespace std;
 
@@ -80,6 +81,11 @@ void Insert(Node*& head, int ID, string title, string course, string dueDate) {
 void displayAssignments(Node* head) {
     Node* curr = head;
 
+    if (curr == nullptr) {
+        cout << "No assignments found." << endl;
+        return;
+    }
+
     while (curr != nullptr) {
         cout << "ID: "<< curr ->ID << endl;
         cout << "Title: "<< curr ->title << endl;
@@ -96,6 +102,29 @@ void displayAssignments(Node* head) {
         cout << "-------------------" << endl;
 
         curr = curr->next;
+    }
+}
+
+void searchAssignments(Node* head, const string& searchTerm) {
+    Node* curr = head;
+    bool found = false;
+
+    while (curr != nullptr) {
+        if (to_string(curr->ID) == searchTerm || curr->title == searchTerm) {
+            cout << "ID: " << curr->ID << endl;
+            cout << "Title: " << curr->title << endl;
+            cout << "Course: " << curr->course << endl;
+            cout << "Due Date: " << curr->dueDate << endl;
+            cout << "Status: "
+                 << (curr->completed ? "Completed" : "Incomplete") << endl;
+            cout << "-------------------" << endl;
+            found = true;
+        }
+        curr = curr->next;
+    }
+
+    if (!found) {
+        cout << "No assignment found matching \"" << searchTerm << "\"." << endl;
     }
 }
 
@@ -396,11 +425,11 @@ void BSTClear(TreeNode*& root) {
 // ---------- helpers that keep the list and the tree in sync ----------
 
 // Add to both structures (rejects duplicate IDs).
-void AddAssignment(Node*& head, TreeNode*& root, int ID, string title,
+bool AddAssignment(Node*& head, TreeNode*& root, int ID, string title,
                    string course, string dueDate) {
     if (contains(head, ID)) {
         cout << "Assignment ID " << ID << " already exists." << endl;
-        return;
+        return false;
     }
     InsertEnd(head, ID, title, course, dueDate);
     Node* curr = head;
@@ -408,6 +437,7 @@ void AddAssignment(Node*& head, TreeNode*& root, int ID, string title,
         curr = curr->next;
     }
     BSTInsert(root, curr);
+    return true;
 }
 
 // Delete from both: remove the tree node first (it points at the record),
@@ -449,5 +479,91 @@ int main() {
         current = current->next;
     }
 
-    displayByDueDate(dueDateTree);
+    int choice = 0;
+    while (choice != 7) {
+        cout << "\nPlanner\n"
+             << "1. Add assignment\n"
+             << "2. View all assignments\n"
+             << "3. Search for an assignment\n"
+             << "4. Display assignments by due date\n"
+             << "5. Mark assignment as complete\n"
+             << "6. Delete assignment\n"
+             << "7. Exit\n"
+             << "Choose an option: ";
+
+        if (!(cin >> choice)) {
+            cout << "Please enter a number from 1 to 7." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        if (choice == 1) {
+            int ID;
+            string title;
+            string course;
+            string dueDate;
+
+            cout << "Assignment ID: ";
+            if (!(cin >> ID)) {
+                cout << "Assignment ID must be a number." << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            cout << "Title: ";
+            getline(cin, title);
+            cout << "Course: ";
+            getline(cin, course);
+            cout << "Due date (YYYY-MM-DD): ";
+            getline(cin, dueDate);
+
+            if (AddAssignment(head, dueDateTree, ID, title, course, dueDate)) {
+                cout << "Assignment added." << endl;
+            }
+        }
+        else if (choice == 2) {
+            displayAssignments(head);
+        }
+        else if (choice == 3) {
+            string searchTerm;
+            cout << "Enter assignment ID or exact title: ";
+            getline(cin, searchTerm);
+            searchAssignments(head, searchTerm);
+        }
+        else if (choice == 4) {
+            displayByDueDate(dueDateTree);
+        }
+        else if (choice == 5 || choice == 6) {
+            int ID;
+            cout << "Assignment ID: ";
+            if (!(cin >> ID)) {
+                cout << "Assignment ID must be a number." << endl;
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            if (choice == 5) {
+                MarkCompleted(head, ID);
+            }
+            else {
+                DeleteAssignment(head, dueDateTree, ID);
+            }
+        }
+        else if (choice != 7) {
+            cout << "Please choose a number from 1 to 7." << endl;
+        }
+    }
+
+    BSTClear(dueDateTree);
+    while (head != nullptr) {
+        Node* next = head->next;
+        delete head;
+        head = next;
+    }
 }
